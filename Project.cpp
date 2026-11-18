@@ -7,7 +7,7 @@ int int_input(int max); // add max number input
 class GOL
 {
   const static int ROWS = 20;
-  const static int COLS = 40;
+  const static int COLS = 20;
 
   float row_prices[ROWS];
   bool field[ROWS][COLS]; // = {0}; // create 2d array
@@ -16,6 +16,9 @@ class GOL
 public:
   void display_field();
   void update_field();
+  void init_sample();
+  void init_random();
+  int sumof(int r, int s);
   bool check(int A)     // tried casting the bools to bools but they Really wanted to be ints, so we have this 
   {
     if (A==0)
@@ -23,6 +26,97 @@ public:
     else{return 1;}
   }
 };
+
+int GOL::sumof(int r, int s)
+{
+  int sum = 0;
+
+  if (r > 0)
+  {
+    sum = sum + check(field[r - 1][s]);
+    if (s > 0)
+    {
+      sum = sum + check(field[r - 1][s - 1]);
+    }
+    if (s < COLS)
+    {
+      sum = sum + check(field[r - 1][s + 1]);
+    }
+  }
+
+  if (s > 0)
+  {
+    sum = sum + check(field[r][s - 1]);
+  }
+  if (s < COLS)
+  {
+    sum = sum + check(field[r][s + 1]);
+  }
+
+  if (r < ROWS)
+  {
+    sum = sum + check(field[r + 1][s]);
+    if (s > 0)
+    {
+      sum = sum + check(field[r + 1][s - 1]);
+    }
+    if (s < COLS)
+    {
+      sum = sum + check(field[r + 1][s + 1]);
+    }
+  }
+  return sum;
+}
+
+void GOL::init_random()
+{
+ for (int r = 0; r < ROWS; r++)
+  {
+    // cout << "Row "<<  setw(2) << right << r + 1 << "    "; // row numbers
+    for (int s = 0; s < COLS; s++)
+    {
+     field[r][s] = (rand()%3? 0 : 1 );
+
+    }
+   
+  }
+
+
+}
+
+
+void GOL::init_sample()
+{
+for (int r = 0; r < ROWS; r++)
+  {
+    for (int s = 0; s < COLS; s++)
+    {
+     field[r][s] = 0;
+    }
+  }
+
+   // insert glider 
+int locx=2;
+int locy=2;
+
+field[locy-1][locx-1] = 1;
+field[locy-1][locx+1] = 1;
+field[locy][locx] = 1;
+field[locy][locx+1] = 1;
+field[locy+1][locx] = 1;
+
+// blinker
+
+ locx=15;
+ locy=12;
+
+field[locy-1][locx] = 1;
+field[locy][locx] = 1;
+field[locy+1][locx] = 1;
+
+
+}
+
 
 void GOL::display_field()
 {
@@ -47,11 +141,8 @@ void GOL::update_field()
     // cout << "Row "<<  setw(2) << right << r + 1 << "    "; // row numbers
     for (int s = 0; s < COLS; s++)
     {
-
-      sum = check(field[r - 1][s - 1]) + check(field[r][s - 1]) + check(field[r + 1][s - 1] )
-      +check( field[r][s - 1]) + check(field[r][s + 1] )
-      + check(field[r + 1][s - 1]) + check(field[r + 1][s]) + check(field[r + 1][s + 1]);
-
+      //sumof(r,s)
+      sum =sumof(r, s);
 
       //cout<<sum <<"="<< check(field[r - 1][s - 1]) << check(field[r][s - 1]) << check(field[r + 1][s - 1] )<<check( field[r][s - 1]) << check(field[r][s + 1] )<< check(field[r + 1][s - 1]) << check(field[r + 1][s]) << check(field[r + 1][s + 1])<<endl;
 
@@ -64,10 +155,8 @@ void GOL::update_field()
       {
         temp[r][s] = 0;
       }
-
       //cout << (field[r][s] ? "O" : ".");
-    }
-    
+    }    
   }
 
 
@@ -77,23 +166,19 @@ void GOL::update_field()
     {
       field[r][s]= temp[r][s];
     }
-   
   }
-
-
-
-
-
 }
 
 //
 int main()
 {
   GOL game;
-  for (int i =0;i<10;i++)
+  game.init_random();
+  game.init_sample();
+  for (int i =0;i<50;i++)
   {
   game.display_field();
-  Sleep(1000);
+  Sleep(800);
   system("cls");
   //cout<<"++++++++++++++++++++++++++++++++++++++"<<endl;
   game.update_field();
