@@ -15,11 +15,14 @@ class GOL
   // bool field[ROWS][COLS];// = {0}; // create 2d array
 
 public:
-  void display_field();
+  void display_field(int frame);
   void update_field();
+  void display_field_H(int frame);
+  void update_field_H();
   void init_sample();
   void init_random();
   int sumof(int r, int s);
+  int sumof_H(int r, int s);
   bool check(int A)     // tried casting the bools to bools but they Really wanted to be ints, so we have this 
   {
     if (A==0)
@@ -117,12 +120,12 @@ field[locy+1][locx] = 1;
 
 }
 
-void GOL::display_field()
+void GOL::display_field(int frame)
 {
-
+cout << "Generation: "<<frame <<endl;
   for (int r = 0; r < ROWS; r++)
   {
-    // cout << "Row "<<  setw(2) << right << r + 1 << "    "; // row numbers
+  
     for (int s = 0; s < COLS; s++)
     {
       cout << (field[r][s] ? "O" : ".");
@@ -135,6 +138,7 @@ void GOL::update_field()
 {
   bool temp[ROWS][COLS];
   int sum = 0;
+  int total=0;
   for (int r = 0; r < ROWS; r++)
   {
     // cout << "Row "<<  setw(2) << right << r + 1 << "    "; // row numbers
@@ -142,6 +146,7 @@ void GOL::update_field()
     {
       //sumof(r,s)
       sum =sumof(r, s);
+      total=total+sum;
 
       //cout<<sum <<"="<< check(field[r - 1][s - 1]) << check(field[r][s - 1]) << check(field[r + 1][s - 1] )<<check( field[r][s - 1]) << check(field[r][s + 1] )<< check(field[r + 1][s - 1]) << check(field[r + 1][s]) << check(field[r + 1][s + 1])<<endl;
 
@@ -159,6 +164,19 @@ void GOL::update_field()
   }
 
 
+  int stale =1;
+ for (int r = 0; r < ROWS; r++)
+{
+    for (int s = 0; s < COLS; s++)
+    {
+      if(!(field[r][s]== temp[r][s]))
+      {
+        stale =0;
+      }
+    }
+  }
+//cout<<stale;
+
  for (int r = 0; r < ROWS; r++)
 {
     for (int s = 0; s < COLS; s++)
@@ -166,31 +184,15 @@ void GOL::update_field()
       field[r][s]= temp[r][s];
     }
   }
+
+  //cout<<total;
+if (stale==1)
+  {
+    init_random();
+  }
 }
 
-class GOLH
-{
-  const static int ROWS = 20;
-  const static int COLS = 20;
-
-  float row_prices[ROWS];
-  bool field[ROWS][COLS]; 
-
-public:
-  void display_field();
-  void update_field();
-  void init_sample();
-  void init_random();
-  int sumof(int r, int s);
-  bool check(int A)     
-  {
-    if (A==0)
-    {return 0;}
-    else{return 1;}
-  }
-};
-
-int GOLH::sumof(int r, int s)
+int GOL::sumof_H(int r, int s)
 {
     int sum = 0;
 
@@ -237,23 +239,9 @@ int GOLH::sumof(int r, int s)
     return sum;
 }
 
-void GOLH::init_random()
+void GOL::display_field_H(int frame )
 {
- for (int r = 0; r < ROWS; r++)
-  {
-    for (int s = 0; s < COLS; s++)
-    {
-     field[r][s] = (rand()%3? 0 : 1 );
-
-    }
-   
-  }
-
-
-}
-
-void GOLH::display_field()
-{
+  cout << "Generation: "<<frame <<endl;
     for (int r = 0; r < ROWS; r++)
     {
         if (r % 2 == 1)
@@ -267,15 +255,17 @@ void GOLH::display_field()
     }
 }
 
-void GOLH::update_field()
+void GOL::update_field_H()
 {
   bool temp[ROWS][COLS];
   int sum = 0;
+  int total=0;
   for (int r = 0; r < ROWS; r++)
   {
     for (int s = 0; s < COLS; s++)
     {
-      sum =sumof(r, s);
+      sum =sumof_H(r, s);
+      total=total+sum;
 
 
       if(sum==3){ temp[r][s] = 1;} 
@@ -296,6 +286,10 @@ void GOLH::update_field()
       field[r][s] = temp[r][s];
     }
   }
+  if (total==0)
+  {
+    init_random();
+  }
 }
 
 /////////////////////////////////////////////
@@ -306,6 +300,7 @@ int main()
   bool receive = false;
   do
   {
+
     cout << "enter 1 for base grid 2 for hex grid: ";
     cin >> choice;
     if(choice == 1 || choice == 2)receive=true;
@@ -318,23 +313,25 @@ int main()
     game.init_sample();
     for (int i =0;i<50;i++)
     {
-      game.display_field();
+      game.display_field(i);
+      
       Sleep(800);
       system("cls");
       //cout<<"++++++++++++++++++++++++++++++++++++++"<<endl;
       game.update_field();
+      
     }
     break;
   case 2:
-    GOLH gameH;
+    GOL gameH;
     gameH.init_random();
     for (int i =0;i<50;i++)
     {
-      gameH.display_field();
+      gameH.display_field_H(i);
       Sleep(800);
       system("cls");
       //cout<<"++++++++++++++++++++++++++++++++++++++"<<endl;
-      gameH.update_field();
+      gameH.update_field_H();
     }
     break;
   default:
